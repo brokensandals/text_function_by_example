@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "text_function_by_example"
+version = "0.1.0"
+description = "Simple python script to generate text-transformation code from input/output examples (using an LLM)."
+authors = [
+    {name = "Jacob Williams", email = "jacob@brokensandals.net"}
+]
+dependencies = [
+    "anthropic",
+    "dataclasses-json",
+    "Jinja2"
+]
+
+[tool.setuptools]
+packages = ["text_function_by_example"]

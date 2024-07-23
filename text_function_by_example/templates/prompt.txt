@@ -1,0 +1,18 @@
+Your goal is to implement a particular function with Python code.
+{% if funcspec.description %}
+Here is a description of the function: <description>{{ funcspec.description | e }}</description>
+{% endif %}
+{% if funcspec.examples %}
+The following examples show the correct output for various inputs:
+{% for example in funcspec.examples %}
+<example>
+    <input>{{ example.input | e }}</input>
+    <output>{{ example.output | e }}</output>
+</example>
+{% endfor %}
+{% endif %}
+Please make your best guess what the function is intended to do even if you do not have sufficient information.
+Think step-by-step and put your thought process in a <thinking> tag.
+Write the Python code in a <code> tag. Escape any '<', '>', or '&' characters in the code using '&lt;', '&gt;', and '&amp;' respectively.
+The primary function in the Python code should be named 'solve', should take a single string parameter as input, and should return a string.
+The Python code should only use built-in Python libraries.

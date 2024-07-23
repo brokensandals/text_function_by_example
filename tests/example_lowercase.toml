@@ -1,0 +1,11 @@
+description = "Convert the string to lowercase."
+
+[[examples]]
+
+input = "Hello world!"
+output = "hello world!"
+
+[[examples]]
+
+input = "Only You Can Prevent Forest Fires"
+output = "only you can prevent forest fires"
