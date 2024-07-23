@@ -6,10 +6,15 @@ from dataclasses_json import dataclass_json
 from typing import List
 from jinja2 import Environment, PackageLoader
 import re
+import stat
+import argparse
+import sys
+import textwrap
 
 
 jinja_env = Environment(loader=PackageLoader("text_function_by_example"), autoescape=False, trim_blocks=True)
 prompt_template = jinja_env.get_template("prompt.txt")
+wrapper_script_template = jinja_env.get_template("wrapper_script.py")
 
 
 @dataclass_json
@@ -96,3 +101,41 @@ def validate_code(funcspec: FuncSpec, code: str) -> List[ValidationFailure]:
         except Exception as ex:
             failures.append(ValidationFailure(input=example.input, expected=example.output, error=ex))
     return failures
+
+
+def create_wrapper_script(path: Path, code: str) -> None:
+    path.write_text(wrapper_script_template.render(code=code), "utf8")
+    path.chmod(path.stat().st_mode | stat.S_IEXEC) # https://stackoverflow.com/a/56049405
+
+
+def main(argv: List[str]) -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("path", type=str, help="Path to function specification toml file.")
+    parser.add_argument("--yolo", action="store_true", help="Run LLM-generated code without asking user to review it first.")
+    args = parser.parse_args(argv[1:])
+    toml_path = Path(args.path)
+    funcspec = load_func_spec(toml_path)
+    genresult = generate_code_anthropic(funcspec)
+    print(f"GENERATED CODE:\n\n{genresult.code}\n")
+    if not args.yolo:
+        ok = input("RUN IT? Type 'trust' to continue: ")
+        if ok != "trust":
+            sys.exit(1)
+    failures = validate_code(funcspec, genresult.code)
+    if failures:
+        print(f"{len(failures)} EXAMPLES FAILED!")
+        for idx, failure in enumerate(failures):
+            print(f"Failure {idx}:")
+            print(f"\tInput:")
+            print(textwrap.indent(failure.input, "\t\t"))
+            print(f"\tExpected:")
+            print(textwrap.indent(failure.expected, "\t\t"))
+            if failure.actual:
+                print(f"\tActual:")
+                print(textwrap.indent(failure.actual, "\t\t"))
+            if failure.error:
+                print(f"\tError:")
+                print(textwrap.indent(str(failure.error), "\t\t"))
+        sys.exit(2)
+    py_path = toml_path.parent.joinpath(f"{toml_path.stem}.py")
+    create_wrapper_script(py_path, genresult.code)

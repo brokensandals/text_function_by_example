@@ -1,7 +1,9 @@
 import unittest
-from text_function_by_example.codegen import load_func_spec, FuncSpec, Example, build_prompt, unescape_xml, extract_tag, generate_code_anthropic, validate_code, ValidationFailure
+from text_function_by_example.codegen import load_func_spec, FuncSpec, Example, build_prompt, unescape_xml, extract_tag, generate_code_anthropic, validate_code, ValidationFailure, create_wrapper_script
 from pathlib import Path
 from textwrap import dedent
+from tempfile import TemporaryDirectory
+import subprocess
 
 
 EXAMPLE_LOWERCASE_PATH = Path(__file__).parent.joinpath("example_lowercase.toml")
@@ -132,6 +134,13 @@ class TestCodegen(unittest.TestCase):
         funcspec.examples[1].output = "BOGUS"
         failures = validate_code(funcspec, code)
         self.assertEqual(failures[0], ValidationFailure(input=funcspec.examples[1].input, expected="BOGUS", actual=expected))
+    
+    def test_create_wrapper_script(self):
+        with TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir).joinpath("lowercase.py")
+            create_wrapper_script(path, "def solve(s):\n    return s.lower()")
+            result = subprocess.run([str(path)], input=b"TeStInG", capture_output=True)
+            self.assertEqual(result.stdout, b"testing")
 
 
 if __name__ == '__main__':
