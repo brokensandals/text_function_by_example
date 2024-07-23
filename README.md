@@ -4,7 +4,7 @@ This is a small utility to generate text-transformation scripts from examples.
 
 ## Setup
 
-1. Clone this repo and run `pip install .`
+1. Install via `pip install text_function_by_example`
 2. Make sure you have an [Anthropic API key](https://docs.anthropic.com/en/api/getting-started).
 3. Make sure the `ANTHROPIC_API_KEY` environment variable is set before running the tool; for example, you could run `export ANTHROPIC_API_KEY=your-key-here` in the terminal first.
 
