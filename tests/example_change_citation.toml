@@ -1,0 +1,10 @@
+# This is optional - you can just supply examples and no description, and let Claude figure it out.
+description = "Replace parenthetical citations with Markdown footnotes."
+
+[[examples]]
+input = "A very smart person said (p. 13) something I agree with"
+output = "A very smart person said ^[p. 13] something I agree with"
+
+[[examples]]
+input = "A not-so-smart person argued (p. 45) for the opposing view"
+output = "A not-so-smart person argued ^[p. 45] for the opposing view"
