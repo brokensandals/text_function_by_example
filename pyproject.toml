@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "text_function_by_example"
-version = "0.1.0"
+version = "0.1.1"
 description = "Simple python script to generate text-transformation code from input/output examples (using an LLM)."
 authors = [
     {name = "Jacob Williams", email = "jacob@brokensandals.net"}
@@ -16,4 +16,7 @@ dependencies = [
 ]
 
 [tool.setuptools]
-packages = ["text_function_by_example"]
+packages = ["text_function_by_example", "text_function_by_example.templates"]
+
+[tool.setuptools.package-data]
+"text_function_by_example.templates" = ["*.txt", "*.py"]
