@@ -65,10 +65,10 @@ When run, the script will read all input from stdin, invoke the function, and pr
 I also wrote a [Hammerspoon plugin](https://github.com/brokensandals/ClipTransform.spoon/) for executing a script against the contents of the clipboard.
 In conjunction, these enable you to quickly create scripts for commonly-performed text manipulations, and use them with the following workflow:
 
-- Copy input text to clipboard
-- Press hotkey that ClipTransform.spoon is bound to
-- Choose script from fuzzy finder
-- Paste transformed text
+1. Copy input text to clipboard
+2. Press hotkey that ClipTransform.spoon is bound to
+3. Choose script from fuzzy finder
+4. Paste transformed text
 
 ## License
 
