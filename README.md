@@ -60,6 +60,10 @@ If you type "trust" and hit enter, it will then test the generated code against 
 If all examples succeed, a python script named after the toml file (`example_change_citation.py` in this case) will be created containing the function.
 When run, the script will read all input from stdin, invoke the function, and print the result to stdout.
 
+If some examples fail, the script will report the problems to Claude and ask it to fix it.
+You'll have to type "trust" again after each iteration (unless you use the `--yolo` argument).
+It will give up after 10 retries (use the `--max-fix-attempts` argument to override this.)
+
 ## Why?
 
 I also wrote a [Hammerspoon plugin](https://github.com/brokensandals/ClipTransform.spoon/) for executing a script against the contents of the clipboard.

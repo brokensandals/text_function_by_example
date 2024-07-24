@@ -1,5 +1,5 @@
 import unittest
-from text_function_by_example.codegen import load_func_spec, FuncSpec, Example, build_prompt, unescape_xml, extract_tag, generate_code_anthropic, validate_code, ValidationFailure, create_wrapper_script
+from text_function_by_example.codegen import load_func_spec, FuncSpec, Example, build_prompt, unescape_xml, extract_tag, generate_code_anthropic, validate_code, ValidationFailure, create_wrapper_script, build_failure_prompt, fix_code_anthropic
 from pathlib import Path
 from textwrap import dedent
 from tempfile import TemporaryDirectory
@@ -82,6 +82,39 @@ class TestCodegen(unittest.TestCase):
         funcspec.examples = []
         actual = build_prompt(funcspec)
         self.assertEqual(actual, expected)
+
+    def test_build_failure_prompt(self):
+        failures = [
+            ValidationFailure(
+                input="Hello world.",
+                expected="hello world.",
+                actual="HELLO WORLD."
+            ),
+            ValidationFailure(
+                input="Goodbye world.",
+                expected="goodbye world.",
+                error="No! Don't leave me!"
+            )
+        ]
+        expected = dedent('''
+                             I tried running that code using the examples I gave you, but it didn't give the expected output on all of them. Here are the failures:
+                            
+                             <failure>
+                                 <input>Hello world.</input>
+                                 <expected-output>hello world.</expected-output>
+                                 <actual-output>HELLO WORLD.</actual-output>
+                             </failure>
+                             <failure>
+                                 <input>Goodbye world.</input>
+                                 <expected-output>goodbye world.</expected-output>
+                                 <error>No! Don't leave me!</error>
+                             </failure>
+                             
+                             Can you rewrite the code to fix the problems?
+                             As before, put your thought process in a <thinking> tag and put the Python code in a <code> tag.
+                          ''').strip()
+        actual = build_failure_prompt(failures)
+        self.assertEqual(actual, expected)
     
     def test_unescape_xml(self):
         original = "&lt;foo&gt;&amp;"
@@ -104,6 +137,39 @@ class TestCodegen(unittest.TestCase):
     @unittest.skip("this costs money and time")
     def test_generate_code_anthropic(self):
         result = generate_code_anthropic(load_func_spec(EXAMPLE_LOWERCASE_PATH))
+        print("Chain of thought:")
+        print(result.thinking)
+        print("Code:")
+        print(result.code)
+        self.assertIn("def solve(", result.code)
+    
+    @unittest.skip("this costs money and time")
+    def test_fix_code_anthropic(self):
+        funcspec = load_func_spec(EXAMPLE_LOWERCASE_PATH)
+        bogus_response = dedent('''
+                                <thinking>This is super easy!</thinking>
+                                <code>
+                                def solve(s):
+                                    return s.upper()
+                                </code>
+                                ''').strip()
+        code = extract_tag(bogus_response, "code")
+        history = [
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": build_prompt(funcspec)}
+                ]
+            },
+            {
+                "role": "assistant",
+                "content": [
+                    {"type": "text", "text": bogus_response}
+                ]
+            }
+        ]
+        failures = validate_code(funcspec, code)
+        result = fix_code_anthropic(history, failures)
         print("Chain of thought:")
         print(result.thinking)
         print("Code:")

@@ -1,0 +1,17 @@
+I tried running that code using the examples I gave you, but it didn't give the expected output on all of them. Here are the failures:
+
+{% for failure in failures %}
+<failure>
+    <input>{{ failure.input }}</input>
+    <expected-output>{{ failure.expected }}</expected-output>
+{% if failure.actual is not none %}
+    <actual-output>{{ failure.actual }}</actual-output>
+{% endif %}
+{% if failure.error %}
+    <error>{{ failure.error }}</error>
+{% endif %}
+</failure>
+{% endfor %}
+
+Can you rewrite the code to fix the problems?
+As before, put your thought process in a <thinking> tag and put the Python code in a <code> tag.
